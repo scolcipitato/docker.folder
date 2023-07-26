@@ -1,0 +1,54 @@
+<?xml version="1.0" standalone="yes"?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name "docker.folder">
+<!ENTITY author "scolcipitato">
+<!ENTITY version "2023.07.26">
+<!ENTITY github "&author;/docker.folder">
+<!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
+<!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
+<!ENTITY md5 "d94f979ac9744b8ec207c4cb6a59c34a">
+]>
+
+<PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" icon="docker" support="https://forums.unraid.net/topic/89702-plugin-docker-folder/" min="6.12.3">
+
+    <CHANGES>
+    ###2023.07.26
+    - Initial Release
+    </CHANGES>
+
+    <!-- Remove old source file -->
+    <FILE Run="/bin/bash">
+        <INLINE>
+            rm -f $(ls /boot/config/plugins/&name;/&name;*.txz | grep -v '&version;')
+        </INLINE>
+    </FILE>
+
+    <!-- New source file -->
+    <FILE Name="/boot/config/plugins/&name;/&name;-&version;.txz" Run="upgradepkg --install-new">
+        <URL>https://raw.github.com/&github;/master/archive/&name;-&version;.txz</URL>
+        <MD5>&md5;</MD5>
+    </FILE>
+
+    <!-- Post install -->
+    <FILE Run="/bin/bash">
+        <INLINE>
+            mkdir -p /boot/config/plugins/&name;
+            echo ""
+            echo "----------------------------------------------------"
+            echo " &name; has been installed."
+            echo " Version: &version;"
+            echo "----------------------------------------------------"
+            echo ""
+        </INLINE>
+    </FILE>
+
+    <!-- Remove the plugin -->
+    <FILE Run="/bin/bash" Method="remove">
+        <INLINE>
+            removepkg &name;-&version;
+            rm -rf &plugdir;
+            rm -rf /boot/config/plugins/&name;
+        </INLINE>
+    </FILE>
+
+</PLUGIN>

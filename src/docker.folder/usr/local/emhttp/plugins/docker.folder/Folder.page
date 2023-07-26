@@ -1,0 +1,295 @@
+Title="Folder"
+Markdown="false"
+---
+
+<div class="canvas">
+    <form onsubmit="submitForm(this); return false">
+        <div class="basic">
+            <dl>
+                <dt>Name:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input type="text" name="name" pattern="[a-zA-Z0-9_.\ \-]+" value="" required>
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Icon:</dt>
+                <dd>
+                    <img src="/plugins/dynamix.docker.manager/images/question.png" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">
+                    <input type="text" name="icon" value="" onchange="updateIcon(this)">
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Animate icon only on hover:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="icon_hover" type="checkbox" />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Preview:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <select name="preview" onchange="previewChange(this)">
+                        <option value="0">None</option>
+                        <option value="1" selected>Icon and label</option>
+                        <option value="2">Only icon</option>
+                        <option value="3">Only label</option>
+                    </select>
+                </dd>
+            </dl>
+        </div>
+        <div class="basic" constraint="preview-1 preview-2 preview-3">
+            <dl>
+                <dt>Show preview only on hover:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="preview_hover" type="checkbox" />
+                </dd>
+            </dl>
+        </div>
+        <div docker class="basic" constraint="preview-1 preview-3">
+            <dl>
+                <dt>Orange text on update:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="preview_update" type="checkbox" checked />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic" constraint="preview-1 preview-2">
+            <dl>
+                <dt>Preview icon grayscale:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="preview_grayscale" type="checkbox" />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic" constraint="preview-1 preview-2 preview-3">
+            <dl>
+                <dt>Add preview open WebUI:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="preview_webui" type="checkbox" checked />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic" constraint="preview-1 preview-2 preview-3">
+            <dl>
+                <dt>Add preview open logs:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="preview_logs" type="checkbox" checked />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Expanded on Docker/VM tab:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="expand_tab" type="checkbox" />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Expanded on Dashboard tab:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input class="basic-switch" name="expand_dashboard" type="checkbox" />
+                </dd>
+            </dl>
+        </div>
+        <div class="basic">
+            <dl>
+                <dt>Regex:</dt>
+                <dd>
+                    <img class="img" style="visibility: hidden;">
+                    <input type="text" name="regex" onchange="updateRegex(this)" value="">
+                </dd>
+            </dl>
+        </div>
+        <div class="basic" style="width: 115em; text-align: center;">
+            <dl>
+                <dd>
+                    <table class="sortable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Included
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </dd>
+            </dl>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<script>
+    let choose = [];
+    let selectedRegex = [];
+    let selected = [];
+    const type = new URLSearchParams(location.search).get('type');
+    const id = new URLSearchParams(location.search).get('id');
+    
+    (async () => {
+        let folders = JSON.parse(await $.get(`/plugins/docker.folder/server/read.php?type=${type}`).promise());
+        if(type === 'docker') {
+            choose = JSON.parse(await $.get('/plugins/docker.folder/server/read_containers.php').promise());
+        }
+        if(id) {
+            const currFolder = folders[id];
+            delete folders[id];
+            
+            const form = $('div.canvas > form')[0];
+            form.name.value = currFolder.name;
+            form.icon.value = currFolder.icon;
+            form.regex.value = currFolder.regex;
+            form.icon_hover.checked = currFolder.settings.icon_hover;
+            form.preview.value = currFolder.settings.preview.toString();
+            form.preview_hover.checked = currFolder.settings.preview_hover;
+            form.preview_update.checked = currFolder.settings.preview_update;
+            form.preview_grayscale.checked = currFolder.settings.preview_grayscale;
+            form.preview_webui.checked = currFolder.settings.preview_webui;
+            form.preview_logs.checked = currFolder.settings.preview_logs;
+            form.expand_tab.checked = currFolder.settings.expand_tab;
+            form.expand_dashboard.checked = currFolder.settings.expand_dashboard;
+            for (const ct of currFolder.containers) {
+                const index = choose.findIndex((e) => e.Name === ct);
+                    if (index > -1) {
+                        selected.push(choose.splice(index, 1)[0]);
+                    }
+            };
+            previewChange(form.preview);
+            updateRegex(form.regex);
+            updateIcon(form.icon);
+
+        }
+
+        for (const [id, value] of Object.entries(folders)) {
+                if(value.regex) {
+                    const regex = new RegExp(value.regex);
+                    for (const container of choose) {
+                        if (regex.test(container.Name)) {
+                            value.containers.push(container.Name);
+                        }
+                    }
+                }
+                
+                for (const container of value.containers) {
+                    const index = choose.findIndex((e) => e.Name === container);
+                    if (index > -1) {
+                        choose.splice(index, 1);
+                    }
+                }
+            }
+    
+        updateList();
+    })();
+
+    
+    const updateIcon = (e) => {
+        e.previousElementSibling.src = e.value;
+    };
+    const updateRegex = (e) => {
+        choose = choose.concat(selectedRegex);
+        selectedRegex = [];
+        if(e.value) {
+            const regex = new RegExp(e.value);
+            for (let i = 0; i < choose.length; i++) {
+                if (regex.test(choose[i].Name)) {
+                    selectedRegex.push(choose.splice(i, 1)[0]);
+                    i--;
+                }
+            }
+        }
+        updateList();
+    };
+    const previewChange = (e) => {
+        $('[constraint^="preview-"]').hide();
+        $(`[constraint*="preview-${e.value}"]`).show();
+    };
+
+    const updateList = () => {
+        const table = $('.sortable > tbody');
+        table.empty();
+        for (const el of selected) {
+            if(type === 'docker') {
+                table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input checked type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+            }
+        }
+        for (const el of choose) {
+            if(type === 'docker') {
+                table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+            }
+        }
+        for (const el of selectedRegex) {
+            if(type === 'docker') {
+                table.prepend($(`<tr class="item"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input disabled type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+            }
+        }
+        $('.sortable').on('dragover', sortTable).on('dragenter', (e) => { e.preventDefault(); });
+    
+        $('.item').on('dragstart', (e) => { e.target.classList.add("dragging") }).on('dragend', (e) => { e.target.classList.remove("dragging") });
+    };
+
+    const sortTable = (e) => {
+        e.preventDefault();
+        
+        const sib = [...$('.item:not(.dragging)')];
+        
+        const bound = e.delegateTarget.getBoundingClientRect();
+        
+        const near = sib.find(el => {
+            return e.clientY - bound.top <= el.offsetTop + el.offsetHeight / 2;
+        });
+
+        $(near).before($('.dragging'));
+    }
+
+    const submitForm = async (e) => {
+        const type = new URLSearchParams(location.search).get('type');
+        const folder = {
+            name: e.name.value.toString(),
+            icon: e.icon.value.toString(),
+            regex: e.regex.value.toString(),
+            settings: {
+                'icon_hover': e.icon_hover.checked,
+                'preview': parseInt(e.preview.value.toString()),
+                'preview_hover': e.preview_hover.checked,
+                'preview_update': e.preview_update.checked,
+                'preview_grayscale': e.preview_grayscale.checked,
+                'preview_webui': e.preview_webui.checked,
+                'preview_logs': e.preview_logs.checked,
+                'expand_tab': e.expand_tab.checked,
+                'expand_dashboard': e.expand_dashboard.checked,
+            },
+            containers: [...$('input[name*="containers"]:checked').map((i, e) => $(e).val())]
+        }
+        if(id) {
+            await $.post('/plugins/docker.folder/server/update.php', { type: type, content: JSON.stringify(folder), id: id });
+        } else {
+            await $.post('/plugins/docker.folder/server/create.php', { type: type, content: JSON.stringify(folder) });
+        }
+        location.href = "/Docker";
+        return false;
+    }
+</script>
+
+
