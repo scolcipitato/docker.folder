@@ -6,7 +6,7 @@
 <!ENTITY github "&author;/docker.folder">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
-<!ENTITY md5 "d94f979ac9744b8ec207c4cb6a59c34a">
+<!ENTITY md5 "3d83a9ec6e19374b81791d678f010bde">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" icon="docker" support="https://forums.unraid.net/topic/89702-plugin-docker-folder/" min="6.12.3">
