@@ -2,16 +2,18 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name "docker.folder">
 <!ENTITY author "scolcipitato">
-<!ENTITY version "2023.07.26">
+<!ENTITY version "2023.07.26.1">
 <!ENTITY github "&author;/docker.folder">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
-<!ENTITY md5 "3d83a9ec6e19374b81791d678f010bde">
+<!ENTITY md5 "0ab8196e4ecf50aedb136599d99aa061">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" icon="docker" support="https://forums.unraid.net/topic/89702-plugin-docker-folder/" min="6.12.3">
 
     <CHANGES>
+    ###2023.07.26.1
+    - Bug fix
     ###2023.07.26
     - Initial Release
     </CHANGES>
