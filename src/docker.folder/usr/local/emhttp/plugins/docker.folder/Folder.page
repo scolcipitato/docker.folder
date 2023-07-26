@@ -63,7 +63,7 @@ Markdown="false"
                 </dd>
             </dl>
         </div>
-        <div class="basic" constraint="preview-1 preview-2 preview-3 docker">
+        <div class="basic" constraint="preview-1 preview-3 docker">
             <dl>
                 <dt>Add preview open WebUI:</dt>
                 <dd>
@@ -72,7 +72,7 @@ Markdown="false"
                 </dd>
             </dl>
         </div>
-        <div class="basic" constraint="preview-1 preview-2 preview-3 docker">
+        <div class="basic" constraint="preview-1 preview-3 docker">
             <dl>
                 <dt>Add preview open logs:</dt>
                 <dd>

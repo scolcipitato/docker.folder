@@ -80,11 +80,12 @@ const createFolderDocker = (folder, id, position, order, containersInfo) => {
         if (index > -1) {
             order.splice(index, 1);
             console.log(`Docker ${index} for ${id}`);
-            $(`span#folder-id-${id}`).siblings('div.folder_storage').append($('tbody#docker_view > tr.updated > td > span.outer').eq(index).addClass(`folder-${id}-element`));
+            const element = $(`span#folder-id-${id}`).siblings('div.folder_storage');
+            element.append($('tbody#docker_view > tr.updated > td > span.outer').eq(index).addClass(`folder-${id}-element`));
+            newFolder[container] = element.children('span.outer').children('span.hand')[0].id;
         }
         upToDate = upToDate && ct.updated == "true";
         started = started || ct.running;
-        newFolder[container] = $(`span#folder-id-${id}`).siblings('div.folder_storage').children('span.outer').children('span.hand')[0].id;
     }
     folder.containers = newFolder;
 

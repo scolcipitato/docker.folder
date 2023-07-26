@@ -11,6 +11,7 @@ const createFolders = async () => {
 
     const folderRegex = /^folder-/;
     let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
+    order = webUiOrder.filter(x => !order.includes(x)).concat(order)
     console.log('Order:', order);
 
     let foldersDone = {};
@@ -142,7 +143,7 @@ const createFolder = (folder, id, position, order, containersInfo) => {
             break;
         case 2:
             addPreview = (id) => {
-                $(`tr.folder-id-${id} > td[colspan=3] > div.folder-preview`).append($(`tr.folder-id-${id} > td[colspan=3] > .folder_storage > tr > td.ct-name > span.outer > span:not(.inner)`).last().clone());
+                $(`tr.folder-id-${id} > td[colspan=3] > div.folder-preview`).append($(`tr.folder-id-${id} > td[colspan=3] > .folder_storage > tr > td.ct-name > span.outer > span.hand`).last().clone());
             };
             break;
         case 3:
@@ -168,6 +169,7 @@ const createFolder = (folder, id, position, order, containersInfo) => {
             addPreview(id);
 
             const element = $(`tr.folder-id-${id} > td[colspan=3] > .folder-preview > span.outer:last`);
+            newFolder[container] = $(`tr.folder-id-${id} > td[colspan=3] > .folder_storage > tr:last > td.ct-name > span.outer > span.hand`)[0].id;
             
             let sel;
 
@@ -207,7 +209,6 @@ const createFolder = (folder, id, position, order, containersInfo) => {
         upToDate = upToDate && ct.updated == "true";
         started = started || ct.running;
         autostart = autostart || ct.autostart;
-        newFolder[container] = element.children('span.hand')[0].id;
     }
     folder.containers = newFolder;
 
