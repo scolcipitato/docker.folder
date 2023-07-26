@@ -67,7 +67,6 @@
         $default = [
             'docker' => '{}',
             'vm' => '{}',
-            'settings' => '{}',
         ];
         file_put_contents("$configDir/$type.json", $default[$type]);
     }
