@@ -5,6 +5,8 @@ const type = new URLSearchParams(location.search).get('type');
 if (type !== 'docker') {
     $('[constraint*="docker"]').hide();
 }
+
+$('input[type=checkbox].basic-switch').switchButton({ labels_placement: 'right', off_label: "Off", on_label: "On"});
 const id = new URLSearchParams(location.search).get('id');
 
 (async () => {
@@ -85,20 +87,27 @@ const updateRegex = (e) => {
 const previewChange = (e) => {
     $('[constraint^="preview-"]').hide();
     $(`[constraint*="preview-${e.value}"]`).show();
+    if (type !== 'docker') {
+        $('[constraint*="docker"]').hide();
+    }
 };
 
 const updateList = () => {
     const table = $('.sortable > tbody');
     table.empty();
     for (const el of selected) {
-        table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input checked type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+        table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input class="container-switch" checked type="checkbox" name="containers[]" value="${el.Name}" style="display: none;"></td></tr>`));
     }
     for (const el of choose) {
-        table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+        table.append($(`<tr class="item" draggable="true"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input class="container-switch" type="checkbox" name="containers[]" value="${el.Name}" style="display: none;"></td></tr>`));
     }
     for (const el of selectedRegex) {
-        table.prepend($(`<tr class="item"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input disabled type="checkbox" name="containers[]" value="${el.Name}"></td></tr>`));
+        table.prepend($(`<tr class="item"><td><img src="${el.Icon}" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">${el.Name}</td><td><input class="container-switch" checked disabled type="checkbox" name="containers[]" value="${el.Name}" style="display: none;"></td></tr>`));
     }
+
+    $('table.sortable > tbody > tr > td > input.container-switch').switchButton({ show_labels: false });
+    $('table.sortable > tbody > tr > td > input.container-switch:disabled').parent().find('*').css('opacity', '0.5').css('cursor', 'default').off().end().end().each(function() { this.checked = !this.checked; });
+
     $('.sortable').on('dragover', sortTable).on('dragenter', (e) => { e.preventDefault(); });
 
     $('.item').on('dragstart', (e) => { e.target.classList.add("dragging") }).on('dragend', (e) => { e.target.classList.remove("dragging") });
@@ -119,7 +128,6 @@ const sortTable = (e) => {
 }
 
 const submitForm = async (e) => {
-    const type = new URLSearchParams(location.search).get('type');
     const folder = {
         name: e.name.value.toString(),
         icon: e.icon.value.toString(),

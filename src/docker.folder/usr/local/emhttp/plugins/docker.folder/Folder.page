@@ -2,6 +2,10 @@ Title="Folder"
 Markdown="false"
 ---
 
+<script src="/webGui/javascript/jquery.switchbutton.js"></script>
+<link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
+<link rel="stylesheet" href="/plugins/docker.folder/styles/folder.css">
+
 <div class="canvas">
     <form onsubmit="submitForm(this); return false">
         <div class="basic">
@@ -18,7 +22,7 @@ Markdown="false"
                 <dt>Icon:</dt>
                 <dd>
                     <img src="/plugins/dynamix.docker.manager/images/question.png" class="img" onerror="this.src='/plugins/dynamix.docker.manager/images/question.png';">
-                    <input type="text" name="icon" value="" onchange="updateIcon(this)">
+                    <input type="text" name="icon" value=""  oninput="updateIcon(this)">
                 </dd>
             </dl>
         </div>
@@ -40,8 +44,7 @@ Markdown="false"
             <dl>
                 <dt>Show preview only on hover:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="preview_hover" type="checkbox" />
+                    <input class="basic-switch" name="preview_hover" type="checkbox" style="display: none;" />
                 </dd>
             </dl>
         </div>
@@ -49,8 +52,7 @@ Markdown="false"
             <dl>
                 <dt>Orange text on update:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="preview_update" type="checkbox" checked />
+                    <input class="basic-switch" name="preview_update" type="checkbox" style="display: none;" checked />
                 </dd>
             </dl>
         </div>
@@ -58,8 +60,7 @@ Markdown="false"
             <dl>
                 <dt>Preview icon grayscale:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="preview_grayscale" type="checkbox" />
+                    <input class="basic-switch" name="preview_grayscale" type="checkbox" style="display: none;" />
                 </dd>
             </dl>
         </div>
@@ -67,8 +68,7 @@ Markdown="false"
             <dl>
                 <dt>Add preview open WebUI:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="preview_webui" type="checkbox" checked />
+                    <input class="basic-switch" name="preview_webui" type="checkbox" style="display: none;" checked />
                 </dd>
             </dl>
         </div>
@@ -76,8 +76,7 @@ Markdown="false"
             <dl>
                 <dt>Add preview open logs:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="preview_logs" type="checkbox" checked />
+                    <input class="basic-switch" name="preview_logs" type="checkbox" style="display: none;" checked />
                 </dd>
             </dl>
         </div>
@@ -85,8 +84,7 @@ Markdown="false"
             <dl>
                 <dt>Expanded on Docker/VM tab:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="expand_tab" type="checkbox" />
+                    <input class="basic-switch" name="expand_tab" type="checkbox" style="display: none;" />
                 </dd>
             </dl>
         </div>
@@ -94,8 +92,7 @@ Markdown="false"
             <dl>
                 <dt>Expanded on Dashboard tab:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input class="basic-switch" name="expand_dashboard" type="checkbox" />
+                    <input class="basic-switch" name="expand_dashboard" type="checkbox" style="display: none;" />
                 </dd>
             </dl>
         </div>
@@ -103,8 +100,7 @@ Markdown="false"
             <dl>
                 <dt>Regex:</dt>
                 <dd>
-                    <img class="img" style="visibility: hidden;">
-                    <input type="text" name="regex" onchange="updateRegex(this)" value="">
+                    <input type="text" name="regex" oninput="updateRegex(this)" value="">
                 </dd>
             </dl>
         </div>

@@ -1,0 +1,20 @@
+tr.item:nth-child(even) {
+    background-color: #212121;
+}
+
+table.sortable { 
+    background-color: #191818;
+    width: 92vw;
+}
+
+.item {
+    height: 5em;
+}
+
+.sortable > tbody > .item[draggable="true"] {
+    cursor: move;
+}
+
+.dragging {
+    opacity: 10%;
+}

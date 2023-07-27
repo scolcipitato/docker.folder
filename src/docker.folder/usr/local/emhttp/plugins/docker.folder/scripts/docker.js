@@ -11,7 +11,7 @@ const createFolders = async () => {
 
     const folderRegex = /^folder-/;
     let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
-    order = webUiOrder.filter(x => !order.includes(x)).concat(order)
+    order = webUiOrder.filter(x => !order.includes(x)).concat(order);
     console.log('Order:', order);
 
     let foldersDone = {};
@@ -59,7 +59,6 @@ const folderAutostart = (el) => {
         const el = $(container).children('td.advanced').next();
         const cstatus = el.children('.autostart')[0].checked;
         if ((status && !cstatus) || (!status && cstatus)) {
-            console.log('click');
             el.children('.switch-button-background').click();
         }
     }
@@ -163,13 +162,13 @@ const createFolder = (folder, id, position, order, containersInfo) => {
         const ct = containersInfo[container];
         if (index > -1) {
             order.splice(index, 1);
-            console.log(`${index} for ${id}`);
             $(`tr.folder-id-${id} > td[colspan=3] > .folder_storage`).append($('#docker_list > tr.sortable').eq(index).addClass(`folder-${id}-element`).removeClass('sortable'));
-
+            
             addPreview(id);
-
+            
             const element = $(`tr.folder-id-${id} > td[colspan=3] > .folder-preview > span.outer:last`);
             newFolder[container] = $(`tr.folder-id-${id} > td[colspan=3] > .folder_storage > tr:last > td.ct-name > span.outer > span.hand`)[0].id;
+            console.log(`${newFolder[container]}(${index}) => ${id}`);
             
             let sel;
 
@@ -316,32 +315,36 @@ window.loadlist = () => {
     loadlist_original();
 };
 
-dockerload.addEventListener('message', (e) => {
-    let load = {};
-    e.split('\n').forEach((e) => {
-        const exp = e.split(';');
-        load[exp[0]] = {
-            cpu: exp[1],
-            mem: exp[2].split(' / ')
-        };
-    });
-    for (const [id, value] of Object.entries(globalFolders)) {
-        let loadCpu = 0;
-        let totalMem = 0;
-        let loadMem = 0;
-        for (const [cid, cvalue] of Object.entries(value.containers)) {
-            const curLoad = load[cvalue] || { cpu: '0.00%', mem: ['0B', '0B'] };
-            loadCpu += parseFloat(curLoad.cpu.replace('%', ''));
-            loadMem += memToB(curLoad.mem[0]);
-            let tempTotalMem = memToB(curLoad.mem[1]);
-            totalMem = (tempTotalMem > totalMem) ? tempTotalMem : totalMem;
+$.get('/plugins/docker.folder/server/cpu.php').promise().then((data) => {
+    cpus = parseInt(data);
+    dockerload.addEventListener('message', (e) => {
+        let load = {};
+        e.split('\n').forEach((e) => {
+            const exp = e.split(';');
+            load[exp[0]] = {
+                cpu: exp[1],
+                mem: exp[2].split(' / ')
+            };
+        });
+        for (const [id, value] of Object.entries(globalFolders)) {
+            let loadCpu = 0;
+            let totalMem = 0;
+            let loadMem = 0;
+            for (const [cid, cvalue] of Object.entries(value.containers)) {
+                const curLoad = load[cvalue] || { cpu: '0.00%', mem: ['0B', '0B'] };
+                loadCpu += parseFloat(curLoad.cpu.replace('%', ''))/cpus;
+                loadMem += memToB(curLoad.mem[0]);
+                let tempTotalMem = memToB(curLoad.mem[1]);
+                totalMem = (tempTotalMem > totalMem) ? tempTotalMem : totalMem;
+            }
+            $(`span.mem-folder-${id}`).text(`${bToMem(loadMem)} / ${bToMem(totalMem)}`);
+            $(`span.cpu-folder-${id}`).text(`${loadCpu.toFixed(2)}%`);
+            $(`span#cpu-folder-${id}`).css('width', `${loadCpu.toFixed(2)}%`)
         }
-        $(`span.mem-folder-${id}`).text(`${bToMem(loadMem)} / ${bToMem(totalMem)}`);
-        $(`span.cpu-folder-${id}`).text(`${loadCpu.toFixed(2)}%`);
-        $(`span#cpu-folder-${id}`).css('width', `${loadCpu.toFixed(2)}%`)
-    }
+    });
 });
 
+let cpus = 1;
 let loadedFolder = false;
 let globalFolders = {};
 

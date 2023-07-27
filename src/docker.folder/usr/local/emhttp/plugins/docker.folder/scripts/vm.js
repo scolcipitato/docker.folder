@@ -7,10 +7,11 @@ const createFolders = async () => {
     let folders = JSON.parse(prom[0]);
     const webUiOrder = $("#kvm_list > tr.sortable > td.vm-name > span.outer >  span.inner > a").map((i, el) => el.innerText.trim()).get();
     const unraidOrder = JSON.parse(prom[1]);
-    const vmInfo = JSON.parse(prom[2])
+    const vmInfo = JSON.parse(prom[2]);
 
     const folderRegex = /^folder-/;
     let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
+    order = webUiOrder.filter(x => !order.includes(x)).concat(order);
     console.log('Order:', order);
 
     let foldersDone = {};
@@ -41,11 +42,11 @@ const createFolders = async () => {
 
     folders = foldersDone;
 
-    // for (const [id, value] of Object.entries(folders)) {
-    //     if(value.settings.expand_tab) {
-    //         $(`#docker_list > tr.folder-id-${id} > td.ct-name > span.outer > span.inner > button`).click();
-    //     }
-    // }
+    for (const [id, value] of Object.entries(folders)) {
+        if(value.settings.expand_tab) {
+            $(`tr.folder-id-${id} > td.vm-name > span.outer > span.inner > button`).click();
+        }
+    }
 
     globalFolders = folders;
 };
@@ -58,7 +59,6 @@ const folderAutostart = (el) => {
         const el = $(container).children().last();
         const cstatus = el.children('.autostart')[0].checked;
         if ((status && !cstatus) || (!status && cstatus)) {
-            console.log('click');
             el.children('.switch-button-background').click();
         }
     }
@@ -73,12 +73,12 @@ const createFolder = (folder, id, position, order, vmInfo) => {
         folder.containers = folder.containers.concat(order.filter(el => regex.test(el)));
     }
 
-    const fld = `<tr class="sortable folder-id-${id}"><td class="vm-name" style="width:220px;padding:8px"><i class="fa fa-arrows-v mover orange-text"></i><span class="outer"><span id="${id}" onclick="addVMFolderContext('${id}')" class="hand"><img src="/plugins/dynamix.vm.manager/templates/images/linux.png" class="img" onerror='this.src="/plugins/dynamix.docker.manager/images/question.png"'></span><span class="inner"><a style="display: none;">folder-${id}</a><a href="#" onclick='editFolder("${id}")'>${folder.name}</a><button onclick="dropDownButton(this, '${id}')" style="padding:6px;min-width:0;margin:0;margin-left: 1em;"><i class="fa fa-chevron-down" aria-hidden="true"></i> </button><br><i id="load-folder-${id}" class="fa fa-square stopped red-text"></i><span class="state">stopped</span></span></span></td><td colspan="5"><div class="folder_storage" style="display:none"></div><div class="folder-preview" style="border:solid #fff 1px;border-radius:4px;height:3.5em;overflow:hidden"></div></td><td><input class="autostart" type="checkbox" id="folder-${id}-auto" style="display: none;"></td></tr>`;
+    const fld = `<tr parent-id="${id}" class="sortable folder-id-${id} ${folder.settings.preview_hover ? 'hover' : ''}"><td class="vm-name" style="width:220px;padding:8px"><i class="fa fa-arrows-v mover orange-text"></i><span class="outer"><span id="${id}" onclick='addVMFolderContext("${id}")' class="hand"><img src="${folder.icon}" class="img" onerror='this.src="/plugins/dynamix.docker.manager/images/question.png"'></span><span class="inner"><a href="#" onclick='editFolder("${id}")'>${folder.name}</a><a style="display:none">folder-${id}</a><button onclick='dropDownButton(this,"${id}")' style="padding:6px;min-width:0;margin:0;margin-left:1em"><i class="fa fa-chevron-down" aria-hidden="true"></i></button><br><i id="load-folder-${id}" class="fa fa-square stopped red-text"></i><span class="state">stopped</span></span></span></td><td colspan="5"><div class="folder_storage" style="display:none"></div><div class="folder-preview" style="border:solid #fff 1px;border-radius:4px;height:3.5em;overflow:hidden"></div></td><td><input class="autostart" type="checkbox" id="folder-${id}-auto" style="display:none"></td></tr><tr child-id="${id}" id="name-${id}" style="display:none"><td colspan="8" style="margin:0;padding:0"></td></tr>`;
 
     if (position === 0) {
         $('#kvm_list > tr.sortable').eq(position).before($(fld));
     } else {
-        $('#kvm_list > tr.sortable').eq(position - 1).after($(fld));
+        $('#kvm_list > tr.sortable').eq(position - 1).next().after($(fld));
     }
 
     $(`#folder-${id}-auto`).switchButton({ labels_placement: 'right', off_label: "Off", on_label: "On", checked: false });
@@ -113,7 +113,8 @@ const createFolder = (folder, id, position, order, vmInfo) => {
         const index = order.indexOf(container);
         if (index > -1) {
             order.splice(index, 1);
-            console.log(`${index} for ${id}`);
+            newFolder[container] = ct.uuid
+            console.log(`${newFolder[container]}(${index}) => ${id}`);
             $(`tr.folder-id-${id} > td[colspan=5] > .folder_storage`).append($('#kvm_list > tr.sortable').eq(index).addClass(`folder-${id}-element`).removeClass('sortable'));
 
             addPreview(id);
@@ -131,7 +132,6 @@ const createFolder = (folder, id, position, order, vmInfo) => {
         }
         started = started || ct.running;
         autostart = autostart || ct.autostart;
-        newFolder[container] = ct.uuid
     }
     folder.containers = newFolder;
 
@@ -226,14 +226,23 @@ let globalFolders = {};
 const createFolderBtn = () => { location.href = "/VMs/Folder?type=vm" };
 $('<input type="button" onclick="createFolderBtn()" value="Add Folder" style="display:none">').insertAfter('table#kvm_table');
 
+window.loadlist_original = loadlist;
+window.loadlist = (x) => {
+    loadedFolder = false;
+    loadlist_original(x);
+};
+
 $.ajaxPrefilter((options, originalOptions, jqXHR) => {
     if (options.url === "/plugins/dynamix.vm.manager/include/UserPrefs.php") {
         const data = new URLSearchParams(options.data);
         const containers = data.get('names').split(';');
+        const folderFixRegex = /^(.*?)(?=folder-)/g;
         let num = "";
         for (let index = 0; index < containers.length - 1; index++) {
+            containers[index] = containers[index].replace(folderFixRegex, '');
             num += index + ';'
         }
+        data.set('names', containers.join(';'));
         data.set('index', num);
         options.data = data.toString();
         $('.unhide').show();
