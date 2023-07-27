@@ -2,15 +2,18 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name "docker.folder">
 <!ENTITY author "scolcipitato">
-<!ENTITY version "2023.07.27">
+<!ENTITY version "2023.07.27.1">
 <!ENTITY github "&author;/docker.folder">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
-<!ENTITY md5 "026700edc4aad01cfcfedfc220ddd775">
+<!ENTITY md5 "a58313eac2212955e3b1efb1cf8c38f9">
 ]>
 
 <PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" icon="docker" support="https://forums.unraid.net/topic/89702-plugin-docker-folder/" min="6.12.3">
     <CHANGES>
+    ###2023.07.27.1
+    - Bug fix
+    - New container/vm now are counted in the order
     ###2023.07.27
     - VM now WORK!
     ###2023.07.26.1

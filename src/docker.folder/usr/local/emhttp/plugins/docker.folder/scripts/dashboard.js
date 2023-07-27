@@ -11,12 +11,16 @@ const createFolders = async () => {
             $.get('/plugins/docker.folder/server/read_containers_info.php').promise()
         ]);
         let folders = JSON.parse(prom[0]);
-        let webUiOrder = $('tbody#docker_view > tr.updated > td > span.outer.apps > span.inner > span:not(".state")').map((i, el) => el.innerText.trim()).get();
-        let unraidOrder = JSON.parse(prom[1]);
+        const webUiOrder = $('tbody#docker_view > tr.updated > td > span.outer.apps > span.inner > span:not(".state")').map((i, el) => el.innerText.trim()).get();
+        const unraidOrder = JSON.parse(prom[1]);
         const containersInfo = JSON.parse(prom[2]);
     
         const folderRegex = /^folder-/;
         let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
+        let newOnes = webUiOrder.filter(x => !order.includes(x));
+        newOnes.push(order.shift());
+        newOnes.sort();
+        order = newOnes.concat(order);
         console.log('Docker Order:', order);
     
         let foldersDone = {};
@@ -69,18 +73,22 @@ const createFolders = async () => {
 
     if($('tbody#vm_view').length > 0) {
 
-        prom = await Promise.all([
+        const prom = await Promise.all([
             $.get('/plugins/docker.folder/server/read.php?type=vm').promise(),
             $.get('/plugins/docker.folder/server/read_order.php?type=vm').promise(),
             $.get('/plugins/docker.folder/server/read_vms_info.php').promise()
         ]);
-        folders = JSON.parse(prom[0]);
-        webUiOrder = $('tbody#vm_view > tr.updated > td > span.outer.vms > span.inner').clone().children().remove().end().map((i, el) => el.innerText.trim()).get();
-        unraidOrder = JSON.parse(prom[1]);
+        let folders = JSON.parse(prom[0]);
+        const webUiOrder = $('tbody#vm_view > tr.updated > td > span.outer.vms > span.inner').clone().children().remove().end().map((i, el) => el.innerText.trim()).get();
+        const unraidOrder = JSON.parse(prom[1]);
         const vmInfo = JSON.parse(prom[2]);
     
-        order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
-        order = webUiOrder.filter(x => !order.includes(x)).concat(order);
+        const folderRegex = /^folder-/;
+        let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
+        let newOnes = webUiOrder.filter(x => !order.includes(x));
+        newOnes.push(order.shift());
+        newOnes.sort();
+        order = newOnes.concat(order);
         console.log('VM Order:', order);
     
         foldersDone = {};
@@ -214,7 +222,7 @@ const expandFolderDcoker = (id) => {
     const el = $(`tbody#docker_view > tr.updated > td > span.outer.apps > span#folder-id-${id}`);
     const state = el.attr('expanded') === "true";
     if (state) {
-        el.siblings('div.folder_storage').append($(`tbody#docker_view > tr.updated > td > span.outer.apps > span.folder-${id}-element`));
+        el.siblings('div.folder_storage').append($(`tbody#docker_view > tr.updated > td > span.outer.apps.folder-${id}-element`));
         el.attr('expanded', 'false');
     } else {
         el.parent().after(el.siblings('div.folder_storage').children());

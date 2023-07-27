@@ -11,6 +11,10 @@ table.sortable {
     height: 5em;
 }
 
+.item img {
+    pointer-events: none;
+}
+
 .sortable > tbody > .item[draggable="true"] {
     cursor: move;
 }

@@ -6,7 +6,6 @@ if (type !== 'docker') {
     $('[constraint*="docker"]').hide();
 }
 
-$('input[type=checkbox].basic-switch').switchButton({ labels_placement: 'right', off_label: "Off", on_label: "On"});
 const id = new URLSearchParams(location.search).get('id');
 
 (async () => {
@@ -44,6 +43,8 @@ const id = new URLSearchParams(location.search).get('id');
         updateIcon(form.icon);
 
     }
+
+    $('input.basic-switch').switchButton({ labels_placement: 'right', off_label: "Off", on_label: "On"});
 
     for (const [id, value] of Object.entries(folders)) {
         if (value.regex) {

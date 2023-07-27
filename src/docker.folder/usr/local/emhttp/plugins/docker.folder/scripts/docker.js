@@ -11,7 +11,10 @@ const createFolders = async () => {
 
     const folderRegex = /^folder-/;
     let order = unraidOrder.filter(e => (webUiOrder.includes(e) || (folderRegex.test(e) && folders[e.slice(7)])));
-    order = webUiOrder.filter(x => !order.includes(x)).concat(order);
+    let newOnes = webUiOrder.filter(x => !order.includes(x));
+    newOnes.push(order.shift());
+    newOnes.sort();
+    order = newOnes.concat(order);
     console.log('Order:', order);
 
     let foldersDone = {};
