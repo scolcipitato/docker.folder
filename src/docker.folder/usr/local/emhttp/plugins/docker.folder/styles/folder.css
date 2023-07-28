@@ -1,14 +1,10 @@
-tr.item:nth-child(even) {
-    background-color: #212121;
-}
-
 table.sortable { 
-    background-color: #191818;
     width: 92vw;
 }
 
 .item {
     height: 5em;
+    border-bottom: 1px solid;
 }
 
 .item img {
@@ -20,5 +16,5 @@ table.sortable {
 }
 
 .dragging {
-    opacity: 10%;
+    opacity: 20%;
 }
